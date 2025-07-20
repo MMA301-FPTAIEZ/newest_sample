@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 const Home = () => {
   return (
     <View>
-      <Text>{process.env.EXPO_PUBLIC_TEST}</Text>
+      <Text>{process.env.EXPO_PUBLIC_API}</Text>
     </View>
   );
 };
