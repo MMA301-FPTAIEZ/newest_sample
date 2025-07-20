@@ -1,3 +1,5 @@
-console.log(process.env.EXPO_PUBLIC_TEST);
+import axios from "axios";
 
-export const instance = 1;
+export const instance = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_API,
+});

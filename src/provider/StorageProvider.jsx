@@ -1,10 +1,55 @@
-import { createContext, useContext } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const StorageContext = createContext();
 
+const KEY = "storageData";
+
 const StorageProvider = ({ children }) => {
+  const [storageData, setStorageData] = useState(null);
+
+  const getStorageData = async () => {
+    const data = await AsyncStorage.getItem(KEY);
+    const parsedData = JSON.parse(data) || [];
+    setStorageData(parsedData);
+  };
+
+  const addStorageData = async (newData) => {
+    const updatedData = [...(storageData || []), newData];
+    setStorageData(updatedData);
+    await AsyncStorage.setItem(KEY, JSON.stringify(updatedData));
+  };
+
+  const removeStorageData = async (id) => {
+    const updatedData = (storageData || []).filter((item) => item.id !== id);
+    setStorageData(updatedData);
+    await AsyncStorage.setItem(KEY, JSON.stringify(updatedData));
+  };
+
+  const updateStorageData = async (id, updatedItem) => {
+    const updatedData = (storageData || []).map((item) =>
+      item.id === id ? { ...item, ...updatedItem } : item
+    );
+    setStorageData(updatedData);
+    await AsyncStorage.setItem(KEY, JSON.stringify(updatedData));
+  };
+
+  useEffect(() => {
+    getStorageData();
+  }, []);
+
   return (
-    <StorageContext.Provider value={{}}>{children}</StorageContext.Provider>
+    <StorageContext.Provider
+      value={{
+        storageData,
+        setStorageData,
+        addStorageData,
+        removeStorageData,
+        updateStorageData,
+      }}
+    >
+      {children}
+    </StorageContext.Provider>
   );
 };
 
