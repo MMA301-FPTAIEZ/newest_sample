@@ -1,9 +1,25 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { instance } from "../lib/axios";
 
 const AppContext = createContext();
 
 const AppProvider = ({ children }) => {
-  return <AppContext.Provider value={{}}>{children}</AppContext.Provider>;
+  const [models, setModels] = useState([])
+
+  const fetchModels = async () => {
+    await instance.get("/").then((res) => {
+      setModels(res.data);
+    });
+  }
+
+  useEffect(() => {
+    fetchModels();
+  }, [])
+
+  return <AppContext.Provider value={{
+    models,
+    setModels
+  }}>{children}</AppContext.Provider>;
 };
 
 export const useAppContext = () => {

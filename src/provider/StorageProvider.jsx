@@ -34,6 +34,11 @@ const StorageProvider = ({ children }) => {
     await AsyncStorage.setItem(KEY, JSON.stringify(updatedData));
   };
 
+  const clearStorageData = async () => {
+    setStorageData([]);
+    await AsyncStorage.removeItem(KEY);
+  }
+
   useEffect(() => {
     getStorageData();
   }, []);
@@ -46,6 +51,7 @@ const StorageProvider = ({ children }) => {
         addStorageData,
         removeStorageData,
         updateStorageData,
+        clearStorageData
       }}
     >
       {children}
