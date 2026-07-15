@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const StorageContext = createContext();
 
-const KEY = "storageData";
+const KEY = "storage";
 
 const StorageProvider = ({ children }) => {
   const [storageData, setStorageData] = useState(null);

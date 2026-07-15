@@ -1,4 +1,4 @@
-import { FlatList, Image, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { FlatList, Image, Text, TouchableOpacity, View, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppContext } from '../provider/AppProvider';
 import { useState } from 'react';
@@ -26,10 +26,17 @@ const StarRating = ({ rating, size = 16, color = '#FFC107' }) => {
     return <View style={styles.starRow}>{stars}</View>;
 };
 
-const Favorite = () => {
+const Home = () => {
+    const { foods } = useAppContext();
     const navigation = useNavigation();
     const [selectedNation, setSelectedNation] = useState(null);
     const { storageData, addStorageData, removeStorageData, clearStorageData } = useStorageContext()
+
+
+    const nations = [...new Set(foods.map((food) => food.nation))];
+    const filteredFoods = foods
+        ?.filter((food) => food.isVegetarian && food.rating >= 4.0 && food.calories > 800)
+        .sort((a, b) => a.nation.charAt(0) - b.nation.charAt(0));
 
     const handleNationSelect = (nation) => {
         setSelectedNation(selectedNation === nation ? null : nation);
@@ -40,26 +47,94 @@ const Favorite = () => {
     }
 
     const handleAddToFavorite = async (food) => {
-        await addStorageData(food);
+        Alert.alert(
+            'Add to Favorites',       // title
+            'Are you sure you want to add this item to your favorites?', // message
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',           // gray/neutral button (iOS)
+                    onPress: () => console.log('Cancelled'),
+                },
+                {
+                    text: 'Add',
+                    style: 'destructive',      // red text (iOS only)
+                    onPress: async () => {
+                        // your actual action here
+                        await addStorageData(food);
+                    },
+                },
+            ],
+
+            { cancelable: true }           // tapping outside dismisses it (Android)
+        );
+    }
+
+    const handleRemoveFromFavorite = async (food) => {
+        Alert.alert(
+            'Remove from Favorites',       // title
+            'Are you sure you want to remove this item from your favorites?', // message
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',           // gray/neutral button (iOS)
+                    onPress: () => console.log('Cancelled'),
+                },
+                {
+                    text: 'Remove',
+                    style: 'destructive',      // red text (iOS only)
+                    onPress: async () => {
+                        // your actual action here
+                        await removeStorageData(food.id);
+                    },
+                },
+            ],
+
+            { cancelable: true }           // tapping outside dismisses it (Android)
+        );
+    }
+
+    const handleClearFavorite = async (food) => {
+        Alert.alert(
+            'Clear Favorites',       // title
+            'Are you sure you want to remove all items from your favorites?', // message
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',           // gray/neutral button (iOS)
+                    onPress: () => console.log('Cancelled'),
+                },
+                {
+                    text: 'Remove',
+                    style: 'destructive',      // red text (iOS only)
+                    onPress: async () => {
+                        // your actual action here
+                        await clearStorageData();
+                    },
+                },
+            ],
+
+            { cancelable: true }           // tapping outside dismisses it (Android)
+        );
     }
 
     return (
         <FlatList
-            data={storageData}
+            data={filteredFoods}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.listContent}
             ListHeaderComponent={
-                <View>
-                    <Text style={styles.sectionTitle}>Your Favorite Foods</Text>
+                <>
+                    <Text style={styles.sectionTitle}>Gourmet Foods</Text>
                     <TouchableOpacity
                         style={styles.clearButton}
-                        onPress={clearStorageData}
+                        onPress={() => handleClearFavorite()}
                     >
                         <Text style={{ color: '#fff', fontWeight: '600' }}>
                             Clear All
                         </Text>
                     </TouchableOpacity>
-                </View>
+                </>
             }
             renderItem={({ item }) => (
                 <View style={styles.card}>
@@ -105,7 +180,7 @@ const Favorite = () => {
                                 color={storageData.some((food) => food.id === item.id) ? "#FF6B6B" : "#888"}
                                 onPress={() => {
                                     if (storageData.some((food) => food.id === item.id)) {
-                                        removeStorageData(item.id);
+                                        handleRemoveFromFavorite(item);
                                     } else {
                                         handleAddToFavorite(item);
                                     }
@@ -119,7 +194,7 @@ const Favorite = () => {
     );
 };
 
-export default Favorite;
+export default Home;
 
 const styles = StyleSheet.create({
     listContent: {

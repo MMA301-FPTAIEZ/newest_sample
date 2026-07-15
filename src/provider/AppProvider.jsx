@@ -4,21 +4,21 @@ import { instance } from "../lib/axios";
 const AppContext = createContext();
 
 const AppProvider = ({ children }) => {
-  const [models, setModels] = useState([])
+  const [foods, setFoods] = useState([])
 
-  const fetchModels = async () => {
+  const fetchFoods = async () => {
     await instance.get("/").then((res) => {
-      setModels(res.data);
+      setFoods(res.data);
     });
   }
 
   useEffect(() => {
-    fetchModels();
+    fetchFoods();
   }, [])
 
   return <AppContext.Provider value={{
-    models,
-    setModels
+    foods,
+    setFoods
   }}>{children}</AppContext.Provider>;
 };
 
